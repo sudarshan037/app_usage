@@ -17,19 +17,46 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 
+import static android.content.ContentValues.TAG;
+import static com.appusage.UsageStatistics.getUsageStatsList;
+
 public class MyService extends Service {
-    public MyService() {
+    long current_usage_time;
+    long maximum_limit;
+    String package_name;
+
+    public MyService(long current_usage_time, long maximum_limit, String package_name) {
+        this.current_usage_time = current_usage_time;
+        this.maximum_limit = maximum_limit;
+        this.package_name = package_name;
     }
 
     @Override
     public void onCreate() {
         Toast.makeText(getApplicationContext(), "Service Started", Toast.LENGTH_LONG).show();
         super.onCreate();
-//        startForeground(1, new Notification());
-        PackageManager packageManager = getPackageManager();
-        ComponentName componentName = new ComponentName(this, com.appusage.MainActivity.class);
-        packageManager.setComponentEnabledSetting(componentName,PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
+        startForeground(1, new Notification());
+        while (true) {
+            try {
+                TimeUnit.MILLISECONDS.sleep(this.maximum_limit - this.current_usage_time);
+                Log.d(TAG, "sleeping for: "+(this.maximum_limit - this.current_usage_time+" milliseconds"));
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            Log.d(TAG, "I am now awake");
+            this.current_usage_time = UsageStatistics.appUsageTime(getUsageStatsList(getApplicationContext()), package_name);
+            if (this.current_usage_time > this.maximum_limit){
+                PackageManager packageManager = getApplicationContext().getPackageManager();
+                ComponentName componentName = new ComponentName(getApplicationContext(), com.appusage.MainActivity.class);
+                packageManager.setComponentEnabledSetting(componentName, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
+                break;
+            }
+        }
+        //PackageManager packageManager = getPackageManager();
+        //ComponentName componentName = new ComponentName(this, com.appusage.MainActivity.class);
+        //packageManager.setComponentEnabledSetting(componentName,PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
 
+        /*
         try {
             while (true) {
 //                com.google.android.youtube
@@ -54,6 +81,7 @@ public class MyService extends Service {
         catch (InterruptedException e) {
             e.printStackTrace();
         }
+         */
     }
 
     @Override
@@ -67,6 +95,7 @@ public class MyService extends Service {
         return null;
     }
 
+    /*
     public String printForegroundTask(Context context) {
         String currentApp = "NULL";
         UsageStatsManager usm = (UsageStatsManager) context.getSystemService(Context.USAGE_STATS_SERVICE);
@@ -85,5 +114,5 @@ public class MyService extends Service {
         Log.e("adapter", "Current App in foreground is: " + currentApp);
         return currentApp;
     }
-
+    */
 }

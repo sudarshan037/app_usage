@@ -35,11 +35,28 @@ public class UsageStatistics {
                 endTime);
     }
 
+    private static UsageStatsManager getUsageStatsManager(Context context) {
+        return (UsageStatsManager) context.getSystemService(Context.USAGE_STATS_SERVICE);
+//        return (UsageStatsManager) context.getSystemService("usagestats");
+    }
+
+    public static long appUsageTime(List<UsageStats> usageStatsList, String package_name){
+        long usage_time = 0;
+//        String package_name = "com.appusage";
+
+        for(UsageStats u : usageStatsList){
+            if(u.getPackageName().equals(package_name)){
+                usage_time += u.getTotalTimeInForeground();
+            }
+        }
+        return usage_time;
+    }
+    /*
     public static String printUsageStats(List<UsageStats> usageStatsList) {
         long youtube = 0;
         for(UsageStats u : usageStatsList) {
 //            com.google.android.youtube
-            if(u.getPackageName().equals("com.google.android.youtube")){
+            if(u.getPackageName().equals("com.appusage")){
                 System.out.println(u.getTotalTimeInForeground());
                 youtube += u.getTotalTimeInForeground();
             }
@@ -58,7 +75,7 @@ public class UsageStatistics {
         long youtube = 0;
         for(UsageStats u : usageStatsList) {
             //            com.google.android.youtube
-            if(u.getPackageName().equals("com.google.android.youtube")){
+            if(u.getPackageName().equals("com.appusage")){
                 System.out.println(u.getTotalTimeInForeground());
                 youtube += u.getTotalTimeInForeground();
             }
@@ -78,8 +95,5 @@ public class UsageStatistics {
         return printUsageStats(getUsageStatsList(context));
     }
 
-    private static UsageStatsManager getUsageStatsManager(Context context) {
-        return (UsageStatsManager) context.getSystemService(Context.USAGE_STATS_SERVICE);
-//        return (UsageStatsManager) context.getSystemService("usagestats");
-    }
+     */
 }
